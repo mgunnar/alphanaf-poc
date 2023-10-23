@@ -1,15 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using Application.Service;
-using Domain.Context;
-using Domain.Interfaces;
-using Repository.Repository;
+using alpha_naf_poc.Domain.Interfaces;
+using alpha_naf_poc.Service;
+using alpha_naf_poc.Repository;
+using alpha_naf_poc.Context;
+using alpha_naf_poc.Interfaces;
+using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<NewsArticlesContext>(opts =>
     opts.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+builder.Services.AddHttpClient<IExternalApi>(client =>
+{
+    client.BaseAddress = new Uri("https://newsapi.org/v2");
+}).AddTypedClient(client => Refit.RestService.For<IExternalApi>(client));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
